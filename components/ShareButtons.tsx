@@ -39,11 +39,13 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(title)}`, '_blank')
   }
 
+  const canShare = typeof window !== 'undefined' && typeof navigator.share === 'function'
+
   return (
     <div className="flex items-center gap-3 pt-8 border-t border-gray-100 dark:border-gray-900">
       <span className="text-xs text-gray-400 dark:text-gray-500">Share:</span>
       <div className="flex items-center gap-2">
-        {navigator.share && (
+        {canShare && (
           <button
             onClick={handleShare}
             className="w-6 h-6 flex items-center justify-center hover:opacity-70 transition-opacity"

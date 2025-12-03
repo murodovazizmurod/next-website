@@ -17,17 +17,23 @@ export default function BlogContent({ content }: { content: string }) {
 
     // Add click handlers to images
     const images = document.querySelectorAll('.prose img')
+    const clickHandlers: Array<(e: Event) => void> = []
+    
     images.forEach((img) => {
-      img.style.cursor = 'pointer'
-      img.addEventListener('click', (e) => {
+      const imageElement = img as HTMLImageElement
+      imageElement.style.cursor = 'pointer'
+      const clickHandler = (e: Event) => {
         const target = e.target as HTMLImageElement
         setLightboxImage({ src: target.src, alt: target.alt || '' })
-      })
+      }
+      imageElement.addEventListener('click', clickHandler)
+      clickHandlers.push(clickHandler)
     })
 
     return () => {
-      images.forEach((img) => {
-        img.removeEventListener('click', () => {})
+      images.forEach((img, index) => {
+        const imageElement = img as HTMLImageElement
+        imageElement.removeEventListener('click', clickHandlers[index])
       })
     }
   }, [content])
