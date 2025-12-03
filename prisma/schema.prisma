@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  tags        String
+  coverImage  String?
+  metaImage   String?
+  metaTitle   String?
+  metaDesc    String?
+  published   Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LivePost {
+  id        String   @id @default(cuid())
+  content   String
+  image     String?
+  link      String?
+  linkTitle String?
+  reactions String?  @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MediaItem {
+  id          String   @id @default(cuid())
+  type        String   // book, movie, song, etc.
+  title       String
+  author      String?
+  description String?
+  coverImage  String?
+  link        String?
+  fileUrl     String?  // for PDFs, audio files
+  rating      Float?   // 0-5 rating for books and movies
+  metaImage   String?
+  metaTitle   String?
+  metaDesc    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
