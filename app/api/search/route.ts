@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const searchTerm = query.toLowerCase()
-    const results = []
+    const results: Array<{ id: string; type: string; title: string; url: string }> = []
 
     // Search blog posts - SQLite is case-insensitive by default
     const allBlogPosts = await prisma.blogPost.findMany({
