@@ -27,3 +27,5 @@ export async function isAuthenticated(): Promise<boolean> {
   return authCookie?.value === 'authenticated'
 }
 
+
+

@@ -12,3 +12,5 @@ export default async function AuthCheck({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+
+

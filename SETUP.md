@@ -70,3 +70,5 @@
    - Setting up image optimization with Next.js Image component
    - Using a CDN for static assets
 
+
+

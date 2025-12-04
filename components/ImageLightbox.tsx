@@ -43,3 +43,5 @@ export default function ImageLightbox({ src, alt, onClose }: ImageLightboxProps)
   )
 }
 
+
+

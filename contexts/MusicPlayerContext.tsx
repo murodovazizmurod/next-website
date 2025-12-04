@@ -41,12 +41,38 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     const handleEnded = () => setIsPlaying(false)
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
+    const handleError = (e: Event) => {
+      const audio = e.target as HTMLAudioElement
+      const error = audio.error
+      if (error) {
+        let errorMessage = 'Unknown audio error'
+        switch (error.code) {
+          case error.MEDIA_ERR_ABORTED:
+            errorMessage = 'Audio playback was aborted'
+            break
+          case error.MEDIA_ERR_NETWORK:
+            errorMessage = 'Network error while loading audio'
+            break
+          case error.MEDIA_ERR_DECODE:
+            errorMessage = 'Audio decoding error - file may be corrupted or unsupported format'
+            break
+          case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMessage = 'Audio source not supported or file not found'
+            break
+        }
+        console.error('Audio playback error:', errorMessage, error)
+      } else {
+        console.error('Audio playback error:', e)
+      }
+      setIsPlaying(false)
+    }
 
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateDuration)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('play', handlePlay)
     audio.addEventListener('pause', handlePause)
+    audio.addEventListener('error', handleError)
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime)
@@ -54,15 +80,49 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('error', handleError)
     }
   }, [currentTrack])
 
   const playTrack = (src: string, title: string, coverImage?: string) => {
+    // Validate the source URL
+    if (!src || src.trim() === '') {
+      console.error('Invalid audio source URL')
+      return
+    }
+
     setCurrentTrack({ src, title, coverImage })
     setIsPlaying(true)
-    // Small delay to ensure audio element is updated
+    
+    // Wait for audio element to be ready
     setTimeout(() => {
-      audioRef.current?.play()
+      const audio = audioRef.current
+      if (!audio) {
+        setIsPlaying(false)
+        return
+      }
+
+      // Reset audio to ensure clean state
+      audio.load()
+      
+      // Wait for audio to be ready to play
+      const handleCanPlay = () => {
+        audio.play().catch((error) => {
+          console.error('Failed to play audio:', error)
+          setIsPlaying(false)
+        })
+        audio.removeEventListener('canplay', handleCanPlay)
+      }
+
+      audio.addEventListener('canplay', handleCanPlay)
+      
+      // If already loaded, try playing immediately
+      if (audio.readyState >= 2) {
+        audio.play().catch((error) => {
+          console.error('Failed to play audio:', error)
+          setIsPlaying(false)
+        })
+      }
     }, 100)
   }
 
@@ -73,7 +133,10 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     if (isPlaying) {
       audio.pause()
     } else {
-      audio.play()
+      audio.play().catch((error) => {
+        console.error('Failed to play audio:', error)
+        setIsPlaying(false)
+      })
     }
   }
 
@@ -138,10 +201,36 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         <audio
           ref={audioRef}
           src={currentTrack.src}
+          preload="metadata"
           onLoadedMetadata={() => {
             if (audioRef.current) {
               setDuration(audioRef.current.duration)
             }
+          }}
+          onError={(e) => {
+            const audio = e.currentTarget
+            const error = audio.error
+            if (error) {
+              let errorMessage = 'Unknown audio error'
+              switch (error.code) {
+                case error.MEDIA_ERR_ABORTED:
+                  errorMessage = 'Audio playback was aborted'
+                  break
+                case error.MEDIA_ERR_NETWORK:
+                  errorMessage = 'Network error while loading audio'
+                  break
+                case error.MEDIA_ERR_DECODE:
+                  errorMessage = 'Audio decoding error - file may be corrupted or unsupported format'
+                  break
+                case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                  errorMessage = 'Audio source not supported or file not found'
+                  break
+              }
+              console.error('Audio loading error:', errorMessage, error)
+            } else {
+              console.error('Audio loading error:', e)
+            }
+            setIsPlaying(false)
           }}
         />
       )}
@@ -156,4 +245,6 @@ export function useMusicPlayer() {
   }
   return context
 }
+
+
 

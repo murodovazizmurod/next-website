@@ -45,3 +45,5 @@ echo "6. Run database migrations: npx prisma db push"
 echo ""
 echo "📖 See DEPLOYMENT.md for detailed instructions"
 
+
+
