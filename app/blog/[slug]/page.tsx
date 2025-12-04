@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
-import { formatDate, calculateReadingTime } from '@/lib/utils'
+import { formatDate, calculateReadingTime, getBaseUrl } from '@/lib/utils'
 import { Metadata } from 'next'
 import BlogContent from '@/components/BlogContent'
 import ToTopButton from '@/components/ToTopButton'
@@ -27,20 +27,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  // Generate OG image URL if metaImage is missing or relative
+  let ogImageUrl = post.metaImage
+  if (!ogImageUrl || ogImageUrl.startsWith('/')) {
+    const baseUrl = getBaseUrl()
+    ogImageUrl = post.metaImage && post.metaImage.startsWith('/')
+      ? `${baseUrl}${post.metaImage}`
+      : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}`
+  }
+
   return {
     title: post.metaTitle || post.title,
     description: post.metaDesc || post.excerpt || '',
     openGraph: {
       title: post.metaTitle || post.title,
       description: post.metaDesc || post.excerpt || '',
-      images: post.metaImage ? [{ url: post.metaImage }] : [],
+      images: [{ url: ogImageUrl }],
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
       title: post.metaTitle || post.title,
       description: post.metaDesc || post.excerpt || '',
-      images: post.metaImage ? [post.metaImage] : [],
+      images: [ogImageUrl],
     },
   }
 }

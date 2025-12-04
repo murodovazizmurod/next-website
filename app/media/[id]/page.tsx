@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getBaseUrl } from '@/lib/utils'
 import { Metadata } from 'next'
 import PlayButton from '@/components/PlayButton'
 import BookmarkButton from '@/components/BookmarkButton'
@@ -23,14 +23,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  // Ensure OG image URL is absolute
+  let ogImageUrl = item.metaImage || item.coverImage
+  if (ogImageUrl) {
+    if (ogImageUrl.startsWith('/')) {
+      const baseUrl = getBaseUrl()
+      ogImageUrl = `${baseUrl}${ogImageUrl}`
+    }
+  } else {
+    // Generate OG image if no image is available
+    const baseUrl = getBaseUrl()
+    ogImageUrl = `${baseUrl}/api/og?title=${encodeURIComponent(item.title)}`
+  }
+
   return {
     title: item.metaTitle || item.title,
     description: item.metaDesc || item.description || '',
     openGraph: {
       title: item.metaTitle || item.title,
       description: item.metaDesc || item.description || '',
-      images: item.metaImage || item.coverImage ? [{ url: item.metaImage || item.coverImage || '' }] : [],
+      images: ogImageUrl ? [{ url: ogImageUrl }] : [],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: item.metaTitle || item.title,
+      description: item.metaDesc || item.description || '',
+      images: ogImageUrl ? [ogImageUrl] : [],
     },
   }
 }

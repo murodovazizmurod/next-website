@@ -85,6 +85,6 @@ export async function PUT(
 }
 
 async function generateOGImage(title: string): Promise<string> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.NODE_ENV === 'production' ? 'https://azizmurod.uz' : 'http://localhost:3000')
   return `${baseUrl}/api/og?title=${encodeURIComponent(title)}`
 }

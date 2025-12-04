@@ -41,3 +41,15 @@ export function calculateReadingTime(content: string): number {
   return readingTime || 1
 }
 
+export function getBaseUrl(): string {
+  // In production, use azizmurod.uz
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL
+  }
+  // Default to azizmurod.uz for production, localhost for development
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://azizmurod.uz'
+  }
+  return 'http://localhost:3000'
+}
+

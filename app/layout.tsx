@@ -8,6 +8,10 @@ import MainContent from '@/components/MainContent'
 import KeyboardShortcuts from '@/components/KeyboardShortcuts'
 import PageTransition from '@/components/PageTransition'
 import LoadingScreen from '@/components/LoadingScreen'
+import { getBaseUrl } from '@/lib/utils'
+
+const baseUrl = getBaseUrl()
+const ogImageUrl = `${baseUrl}/api/og?home=true`
 
 export const metadata: Metadata = {
   title: "azizmurod's",
@@ -18,7 +22,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/api/og?home=true',
+        url: ogImageUrl,
         width: 1200,
         height: 630,
         alt: "azizmurod's",
@@ -29,7 +33,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "azizmurod's",
     description: "dlsjvtl av tf dlizpal, zayhunly)",
-    images: ['/api/og?home=true'],
+    images: [ogImageUrl],
   },
 }
 
